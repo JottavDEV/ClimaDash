@@ -107,7 +107,7 @@ function extractCityName(fullName: string): string {
   }
   
   // Dividir por vírgulas e limpar espaços
-  const parts = trimmed.split(",").map(p => p.trim()).filter(p => p.length > 0);
+  const parts = trimmed.split(",").map((p: string) => p.trim()).filter((p: string) => p.length > 0);
   
   // O formato geralmente é: [Bairro/Área], [Cidade], [Região], [Estado], [País]
   // A cidade geralmente está na segunda posição (índice 1)
@@ -456,7 +456,7 @@ export async function getCityFromCoordinates(
         // Se não encontrou cidade específica, tentar usar display_name
         if (data.display_name) {
           // Extrair a primeira parte do display_name (geralmente é a cidade/localidade)
-          const displayParts = data.display_name.split(",").map(p => p.trim());
+          const displayParts = data.display_name.split(",").map((p: string) => p.trim());
           if (displayParts.length > 0) {
             const extractedCity = displayParts[0];
             console.log(`[getCityFromCoordinates] Usando display_name: "${extractedCity}"`);
