@@ -26,11 +26,13 @@ export function Sidebar({ isOpen, onToggle, darkMode, onToggleDarkMode, onOpenAp
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed lg:static inset-y-0 left-0 z-50",
+          "fixed lg:sticky lg:top-0 inset-y-0 left-0 z-50",
           "w-64 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg",
           "border-r border-gray-200 dark:border-gray-800",
           "transition-transform duration-300 ease-in-out",
           "flex flex-col",
+          "h-screen lg:h-auto lg:max-h-screen",
+          "overflow-y-auto",
           isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
