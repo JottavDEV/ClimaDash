@@ -41,8 +41,16 @@ export function SearchBar({ onSearch, isLoading = false }: SearchBarProps) {
 
     setIsSearching(true);
     try {
+      // Enviar chave de API via header se disponível
+      const headers: HeadersInit = {};
+      const clientApiKey = localStorage.getItem("tomorrow_io_api_key");
+      if (clientApiKey) {
+        headers["X-API-Key"] = clientApiKey;
+      }
+      
       const response = await fetch(
-        `/api/weather/search?q=${encodeURIComponent(searchQuery)}`
+        `/api/weather/search?q=${encodeURIComponent(searchQuery)}`,
+        { headers }
       );
       if (response.ok) {
         const data = await response.json();

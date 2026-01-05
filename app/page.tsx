@@ -11,6 +11,7 @@ import { Loader2, AlertCircle, Wifi, WifiOff, MapPin, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { ApiKeyModal } from "@/components/ApiKeyModal";
 
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -25,6 +26,8 @@ export default function Home() {
   const [showLocationPrompt, setShowLocationPrompt] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  const [apiKey, setApiKey] = useState<string>("");
 
   // Geolocalização hook
   const {
@@ -42,8 +45,16 @@ export default function Home() {
       setLocationLoading(true);
       try {
         // Primeiro, tentar buscar o nome da cidade via reverse geocoding
+        // Enviar chave de API via header se disponível
+        const headers: HeadersInit = {};
+        const clientApiKey = localStorage.getItem("tomorrow_io_api_key");
+        if (clientApiKey) {
+          headers["X-API-Key"] = clientApiKey;
+        }
+        
         const geocodeResponse = await fetch(
-          `/api/weather/geocode?lat=${coords.latitude}&lon=${coords.longitude}`
+          `/api/weather/geocode?lat=${coords.latitude}&lon=${coords.longitude}`,
+          { headers }
         );
         
         let cityName: string | null = null;
@@ -196,7 +207,16 @@ export default function Home() {
       
       console.debug("Buscando clima para:", isCoordinates ? "coordenadas" : "cidade", locationParam);
       
-      const response = await fetch(`/api/weather?city=${locationParam}`);
+      // Enviar chave de API via header se disponível
+      const headers: HeadersInit = {};
+      const clientApiKey = localStorage.getItem("tomorrow_io_api_key");
+      if (clientApiKey) {
+        headers["X-API-Key"] = clientApiKey;
+      }
+      
+      const response = await fetch(`/api/weather?city=${locationParam}`, {
+        headers,
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -323,6 +343,7 @@ export default function Home() {
         onToggle={() => setSidebarOpen(false)}
         darkMode={darkMode}
         onToggleDarkMode={() => setDarkMode(!darkMode)}
+        onOpenApiKeyModal={() => setShowApiKeyModal(true)}
       />
 
       <main
@@ -505,6 +526,19 @@ export default function Home() {
           )}
         </div>
       </main>
+
+      {/* Modal de Chave de API */}
+      <ApiKeyModal
+        isOpen={showApiKeyModal}
+        onClose={() => setShowApiKeyModal(false)}
+        onSave={(key) => {
+          setApiKey(key);
+          // Recarregar dados se já tiver uma cidade selecionada
+          if (weatherData) {
+            fetchWeather(getLocationString());
+          }
+        }}
+      />
     </div>
   );
 }
